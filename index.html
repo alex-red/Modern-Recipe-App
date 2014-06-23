@@ -1,0 +1,292 @@
+<html ng-app='recipeApp'>
+  <head>
+    <meta charset='utf-8'>
+    <meta content='initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width' name='viewport'>
+    <title>Modern Chef</title>
+    <link href='./css/ionic.min.css' rel='stylesheet'>
+    <link href='./css/main.css' rel='stylesheet'>
+    <script src='./js/ionic.bundle.min.js'></script>
+    <!-- %script(src="./js/jquery-2.1.0.min.js") -->
+    <script src='./js/main.js'></script>
+  </head>
+  <body animation='slide-left-right-ios7'>
+    <ion-nav-bar class='nav-title-slide-ios7 bar-positive'>
+      <ion-nav-back-button class='button-icon ion-arrow-left-c'></ion-nav-back-button>
+    </ion-nav-bar>
+    <ion-nav-view>
+      <ion-view>
+        <ion-content>
+          Hello World!
+        </ion-content>
+      </ion-view>
+    </ion-nav-view>
+    <!-- Footer bar -->
+    <div class='tabs tabs-icon-top tabs-positive'>
+      <a class='tab-item' href='#'>
+        <i class='icon ion-home'></i>
+        Home
+      </a>
+      <a class='tab-item'>
+        <i class='icon ion-gear-a'></i>
+        Settings
+      </a>
+    </div>
+    <!-- Index -->
+    <script id='home.html' type='text/ng-template'>
+      <ion-view hide-back-button='true' title='Modern Chef'>
+        <ion-nav-buttons side='left'>
+          <button class='button button-clear icon ion-navicon' ng-click='toggle()'></button>
+        </ion-nav-buttons>
+        <ion-nav-buttons side='right'>
+          <button class='button button-clear icon ion-ios7-plus-outline' ng-click='addNew()'></button>
+        </ion-nav-buttons>
+        <ion-content>
+          <div class='list noPadding' ng-repeat-start='c in cats'>
+            <div class='item item-divider positive item-icon-right' style='float: center;'>
+              {{c.name}}
+            </div>
+            <ion-list show-reorder='showReorder'>
+              <ion-item class='item-icon-right item-icon-left' ng-click='showReorder || handleClick(item)' ng-repeat='item in c.data'>
+                <i class='icon {{item.col}} {{item.mark}}'></i>
+                <b>{{item.name}}</b>
+                <p ng-if='!!item.description'>{{item.description}}</p>
+                <i class='icon ion-chevron-right' ng-if='!showReorder'></i>
+                <ion-reorder-button class='ion-navicon' on-reorder='moveItem(item, c.name, $fromIndex, $toIndex)'></ion-reorder-button>
+              </ion-item>
+            </ion-list>
+          </div>
+          <div class='content' ng-repeat-end></div>
+        </ion-content>
+      </ion-view>
+    </script>
+    <!-- Recipe template -->
+    <script id='recipes.html' type='text/ng-template'>
+      <ion-view title='Recipes'>
+        <ion-nav-buttons side='right'>
+          <button class='button button-clear icon ion-ios7-plus-outline' ng-click='newCategory()'></button>
+        </ion-nav-buttons>
+        <ion-content>
+          <div class='list noPadding' ng-repeat='cat in data.categories'>
+            <div class='item item-divider item-icon-right positive'>
+              {{cat}}
+              <a class='icon' ng-click='newItem(cat)' style='margin-right: -15px;'>
+                <i class='icon ion-plus-round'></i>
+              </a>
+            </div>
+            <a class='item item-icon-right' ng-click='showRecipe(i)' ng-if='i.category==cat' ng-repeat='i in data.items'>
+              {{i.name}}
+              <i class='icon ion-chevron-right icon-accessory'></i>
+            </a>
+          </div>
+        </ion-content>
+      </ion-view>
+    </script>
+    <!-- New Item template -->
+    <script id='newItem.html' type='text/ng-template'>
+      <ion-view title='New Item'>
+        <ion-nav-buttons side='right'>
+          <button class='button button-clear icon ion-ios7-close-outline' ng-click='exitOut()'></button>
+        </ion-nav-buttons>
+        <ion-content>
+          <form class='list' name='form' ng-show='showForm'>
+            <div class='item item-divider'>
+              Enter your list details
+            </div>
+            <label class='item item-input'>
+              <input name='listName' ng-maxlength='50' ng-model='list.name' placeholder="List Name - Ex: Friday's Shopping List" required type='text'>
+              <span class='item-info' ng-show='form.listName.$error.maxlength' style='margin-right: 15px; color: red;'>
+                <b>Too long!</b>
+              </span>
+              <span class='item-info' ng-show='form.listName.$error.required' style='margin-right: 15px; color: red;'>
+                <i class='icon ion-record'></i>
+              </span>
+            </label>
+            <label class='item item-input'>
+              <input name='listDesc' ng-maxlength='50' ng-model='list.description' placeholder='Short Description - Ex: Pasta dinner' type='text'>
+              <span class='item-info' ng-show='form.listDesc.$error.maxlength' style='margin-right: 15px; color: red;'>
+                <b>Too long!</b>
+              </span>
+            </label>
+            <label class='item item-input item-select'>
+              <div class='input-label'>
+                <h2>
+                  <b>Category:</b>
+                </h2>
+              </div>
+              <select ng-init="list.category='Shopping List'" ng-model='list.category' ng-options='cat for cat in categories'></select>
+            </label>
+            <div class='item item-divider'>Icon Color</div>
+            <div class='row' style='text-align: center;'>
+              <div class='col' ng-repeat='c in colors'>
+                <div class='iconContainer'>
+                  <i class='icon {{c}}' ng-class="(colselected==$index) ? 'ion-checkmark' : 'ion-stop' " ng-click='colselect($index, c)' style='font-size: 50px;'></i>
+                </div>
+              </div>
+            </div>
+            <div class='item item-divider'>Icon Type</div>
+            <div class='row' style='text-align: center;'>
+              <div class='col' ng-repeat='i in icons'>
+                <div class='iconContainer' ng-class="(iconselected==$index) ? 'addBorder' : '' ">
+                  <i class='icon {{i}} {{list.col}}' ng-click='iconselect($index, i)' style='font-size: 50px;'></i>
+                </div>
+              </div>
+            </div>
+            <div class='padding'>
+              <button class='button button-block' ng-click='submit()' ng-required='!list.name'>Create</button>
+            </div>
+          </form>
+        </ion-content>
+      </ion-view>
+    </script>
+    <!-- Shopping List -->
+    <script id='shoppingList.html' type='text/ng-template'>
+      <ion-view title='{{data.name}}'>
+        <ion-nav-buttons side='right'>
+          <button class='button button-clear icon ion-ios7-download-outline' ng-click='showImport()'></button>
+        </ion-nav-buttons>
+        <ion-content>
+          <div class='button-bar noPadding'>
+            <button class='button button-small button-royal' ng-click='toggleSort()'>
+              <b>Sort By:</b>
+              <b class='balanced'>{{data.sorting ? 'Needed' : 'Normal'}}</b>
+            </button>
+            <button class='button button-small button-royal' ng-click='toggleConvert()'>
+              <b>Smart Units:</b>
+              <b ng-class="data.convert ? 'balanced' : 'assertive'">{{data.convert ? 'ON' : 'OFF'}}</b>
+            </button>
+          </div>
+          <div class='card' style='margin-top: 10px;'>
+            <div class='item item-divider positive item-icon-right'>
+              Items
+              <a class='icon' ng-click='clearAll()' style='margin-right: 1em;'>
+                <i class='icon ion-trash-a calm'></i>
+              </a>
+              <a class='icon' ng-click='newItem()'>
+                <i class='icon ion-plus calm'></i>
+              </a>
+            </div>
+            <div class='item item-text-wrap' ng-class="{'doneThis': i.strike, 'item-icon-left': i.strike}" ng-click='i.strike=!i.strike' ng-repeat="i in data.items | orderBy:data.sorting:'true'">
+              <i class='icon ion-ios7-checkmark balanced' ng-if='i.strike'></i>
+              <b class='assertive'>{{i.qty}}</b>
+              <b>{{i.type}}</b>
+              <span class='italic'>{{!i.type ? '' : 'of'}}</span>
+              <b>{{i.name}}</b>
+              <p ng-if='data.convert'>{{i.smartConvert}}</p>
+            </div>
+            <div class='item item-text-wrap' ng-if='data.items==0'>
+              You don't have any items yet. Add some by clicking on the <b class="calm">plus</b> button.
+            </div>
+          </div>
+        </ion-content>
+      </ion-view>
+    </script>
+    <!-- New Shopping List item -->
+    <script id='shoppingListPopup.html' type='text/ng-template'>
+      <div class='bar bar-header bar-positive'>
+        <h1 class='title'>New Item</h1>
+      </div>
+      <div class='content' style='margin-top: 15px; padding-bottom: 0px; margin-bottom: 0px;'>
+        <div class='list noPadding'>
+          <label class='item item-input'>
+            <span class='input-label'>Item:</span>
+            <input ng-model='item.name' ng-required placeholder='butter' type='text'>
+          </label>
+          <label class='item item-input'>
+            <span class='input-label'>Qty:</span>
+            <input ng-model='item.qty' placeholder='1' type='number'>
+            <span class='badge badge-balanced' ng-if='item.type'>{{item.type}}</span>
+          </label>
+        </div>
+        <div class='button-bar' ng-repeat='c in cat'>
+          <a class='button' ng-class="{'button-positive': item.type==_c}" ng-click='setActive(_c)' ng-repeat='_c in c'>
+            <b>{{_c}}</b>
+          </a>
+        </div>
+        <div class='button-bar'>
+          <a class='button' ng-class="{'button-positive': item.type==''}" ng-click="setActive('')">
+            <b>None</b>
+          </a>
+        </div>
+      </div>
+    </script>
+    <!-- / Helper Templates -->
+    <!-- Import shopping list -->
+    <script id='importShoppingList.html' type='text/ng-template'>
+      <div class='bar bar-header bar-positive'>
+        <h1 class='title'>Import List</h1>
+      </div>
+      <div class='content'>
+        <textarea ng-keyup='closeIt($event)' ng-model='import.str' ng-required placeholder='Paste your list here.' rows='5' style='margin-top: 1.5em;'></textarea>
+      </div>
+    </script>
+    <!-- Add new instruction -->
+    <script id='instructionPopup.html' type='text/ng-template'>
+      <div class='bar bar-header bar-positive'>
+        <h1 class='title'>Intruction</h1>
+      </div>
+      <div class='content'>
+        <textarea ng-model='item.string' placeholder='Instructions...' rows='5' style='margin-top: 1.5em;'></textarea>
+      </div>
+    </script>
+    <!-- New Recipe Item -->
+    <script id='newRecipeItem.html' type='text/ng-template'>
+      <div class='bar bar-header bar-positive'>
+        <h1 class='title'>{{item.title}}</h1>
+      </div>
+      <div class='content' style='margin-top: 1em;'>
+        <div class='list noPadding'>
+          <label class='item item-input'>
+            <span class='input-label'>Item:</span>
+            <input ng-model='item.name' ng-required placeholder='...' type='text'>
+          </label>
+        </div>
+      </div>
+    </script>
+    <!-- Recipe Modal -->
+    <script id='recipeModal.html' ng-controller='recipeModalCtrl' type='text/ng-template'>
+      <div class='modal'>
+        <ion-header-bar class='bar bar-positive'>
+          <button class='button button-clear icon ion-arrow-left-c' ng-click='modal.hide()'></button>
+          <h1 class='title'>
+            <b>{{modal.current.name}}</b>
+          </h1>
+          <button class='button button-clear icon ion-close' ng-click='modal.hide()'></button>
+        </ion-header-bar>
+        <ion-content>
+          <div class='card'>
+            <div class='item item-divider positive item-icon-right'>
+              Ingredients
+              <a class='icon' ng-class="{'balanced': modal.current.smartConvert}" ng-click='modal.smartToggle()' style='margin-right: 2em;'>
+                <i class='icon ion-code-working'></i>
+              </a>
+              <a class='icon' ng-click='modal.import()' style='margin-right: 1em;'>
+                <i class='icon ion-ios7-download-outline'></i>
+              </a>
+              <a class='icon' ng-click="modal.add('ingredient')">
+                <i class='icon ion-plus'></i>
+              </a>
+            </div>
+            <div class='item item-text-wrap' ng-repeat='i in modal.current.ingredients'>
+              <b class='assertive'>{{i.qty}}</b>
+              <b>{{i.type}}</b>
+              <span class='italic'>{{!i.type ? '' : 'of'}}</span>
+              <b>{{i.name}}</b>
+              <p ng-if='modal.current.smartConvert'>{{i.smartConvert}}</p>
+            </div>
+            <div class='item item-text-wrap'>Add some ingredients to your recipe.</div>
+          </div>
+          <div class='card'>
+            <div class='item item-divider balanced item-icon-right'>
+              Instructions
+              <a class='icon' ng-click="modal.add('instruction')">
+                <i class='icon ion-plus'></i>
+              </a>
+            </div>
+            <div class='item item-text-wrap'>How to prepare this delicious recipe.</div>
+          </div>
+        </ion-content>
+        <div class='bar bar-footer bar-positive'></div>
+      </div>
+    </script>
+  </body>
+</html>
