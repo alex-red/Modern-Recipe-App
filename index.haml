@@ -1,0 +1,227 @@
+%html(ng-app="recipeApp")
+  %head
+    %meta(charset="utf-8")
+    %meta(name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width")
+
+    %title Modern Chef
+
+    %link(href="./css/ionic.min.css" rel="stylesheet")
+    %link(href="./css/main.css" rel="stylesheet")
+
+    %script(src="./js/ionic.bundle.min.js")
+    / %script(src="./js/jquery-2.1.0.min.js")
+    %script(src="./js/main.js")
+
+  %body(animation="slide-left-right-ios7")
+
+    %ion-nav-bar.nav-title-slide-ios7.bar-positive
+      %ion-nav-back-button.button-icon.ion-arrow-left-c
+
+    %ion-nav-view
+      %ion-view
+        %ion-content
+          Hello World!
+
+    / Footer bar
+    .tabs.tabs-icon-top.tabs-positive
+      %a.tab-item(href="#")
+        %i.icon.ion-home
+        Home
+      %a.tab-item
+        %i.icon.ion-gear-a
+        Settings
+
+    / Index
+    %script(id="home.html" type="text/ng-template")
+      %ion-view(title="Modern Chef" hide-back-button="true")
+        %ion-nav-buttons(side="left")
+          %button.button.button-clear.icon.ion-navicon(ng-click="toggle()")
+        %ion-nav-buttons(side="right")
+          %button.button.button-clear.icon.ion-ios7-plus-outline(ng-click="addNew()")
+
+        %ion-content
+          .list.noPadding(ng-repeat-start="c in cats") 
+            .item.item-divider.positive.item-icon-right(style="float: center;")
+              {{c.name}}
+            %ion-list(show-reorder="showReorder")
+
+              %ion-item.item-icon-right.item-icon-left(ng-repeat="item in c.data" ng-click="showReorder || handleClick(item)" )
+                %i.icon(class="{{item.mark}} {{item.col}}") 
+                %b {{item.name}}
+                %p(ng-if="!!item.description") {{item.description}}
+                %i.icon.ion-chevron-right(ng-if="!showReorder")
+                %ion-reorder-button.ion-navicon(on-reorder="moveItem(item, c.name, $fromIndex, $toIndex)")
+          .content(ng-repeat-end)
+
+
+
+
+    / Recipe template
+    %script(id="recipes.html" type="text/ng-template")
+      %ion-view(title="Recipes")
+        %ion-nav-buttons(side="right")
+          %button.button.button-clear.icon.ion-ios7-plus-outline(ng-click="newCategory()")
+        %ion-content
+          .list.noPadding(ng-repeat="cat in data.categories")
+            .item.item-divider.item-icon-right.positive
+              {{cat}}
+              %a.icon(ng-click="newItem(cat)" style="margin-right: -15px;")
+                %i.icon.ion-plus-round
+            %a.item.item-icon-right(ng-repeat="i in data.items" ng-if="i.category==cat" ng-click="showRecipe(i)")
+              {{i.name}}
+              %i.icon.ion-chevron-right.icon-accessory
+
+
+    / New Item template
+    %script(id="newItem.html" type="text/ng-template")
+      %ion-view(title="New Item")
+        %ion-nav-buttons(side="right")
+          %button.button.button-clear.icon.ion-ios7-close-outline(ng-click="exitOut()")
+
+
+        %ion-content
+          %form.list(name="form" ng-show="showForm")
+            .item.item-divider
+              Enter your list details
+            %label.item.item-input
+              %input(name="listName" type="text" placeholder="List Name - Ex: Friday's Shopping List" ng-model="list.name" ng-maxlength="50" required)
+              %span.item-info(style="margin-right: 15px; color: red;" ng-show="form.listName.$error.maxlength")
+                %b Too long!
+              %span.item-info(style="margin-right: 15px; color: red;" ng-show="form.listName.$error.required")
+                %i.icon.ion-record
+            %label.item.item-input
+              %input(name="listDesc" type="text" placeholder="Short Description - Ex: Pasta dinner" ng-model="list.description" ng-maxlength="50")
+              %span.item-info(style="margin-right: 15px; color: red;" ng-show="form.listDesc.$error.maxlength")
+                %b Too long!
+            %label.item.item-input.item-select
+              .input-label
+                %h2
+                  %b Category:
+              %select(ng-model="list.category" ng-options="cat for cat in categories" ng-init="list.category='Shopping List'")
+
+            .item.item-divider Icon Color
+            .row(style="text-align: center;")
+              .col(ng-repeat="c in colors")
+                .iconContainer
+                  %i.icon(style="font-size: 50px;" ng-class="(colselected==$index) ? 'ion-checkmark' : 'ion-stop' " class="{{c}}" ng-click="colselect($index, c)" )
+
+            .item.item-divider Icon Type
+            .row(style="text-align: center;")
+              .col(ng-repeat="i in icons")
+                .iconContainer(ng-class="(iconselected==$index) ? 'addBorder' : '' ")
+                  %i.icon(style="font-size: 50px;" class="{{i}} {{list.col}}" ng-click="iconselect($index, i)")
+
+            .padding
+              %button.button.button-block(ng-click="submit()" ng-required="!list.name") Create
+
+    / Shopping List
+    %script(id="shoppingList.html" type="text/ng-template")
+      %ion-view(title="{{data.name}}")
+        %ion-nav-buttons(side="right")
+          %button.button.button-clear.icon.ion-ios7-download-outline(ng-click="showImport()")
+        %ion-content
+          .button-bar.noPadding
+            %button.button.button-small.button-royal(ng-click="toggleSort()")
+              %b Sort By:
+              %b.balanced {{data.sorting ? 'Needed' : 'Normal'}}
+            %button.button.button-small.button-royal(ng-click="toggleConvert()")
+              %b Smart Units:
+              %b(ng-class="data.convert ? 'balanced' : 'assertive'") {{data.convert ? 'ON' : 'OFF'}}
+          .card(style="margin-top: 10px;")
+            .item.item-divider.positive.item-icon-right
+              Items
+              %a.icon(style="margin-right: 1em;" ng-click="clearAll()")
+                %i.icon.ion-trash-a.calm
+              %a.icon(ng-click="newItem()")
+                %i.icon.ion-plus.calm
+            .item.item-text-wrap(ng-repeat="i in data.items | orderBy:data.sorting:'true'" ng-class="{'doneThis': i.strike, 'item-icon-left': i.strike}" ng-click="i.strike=!i.strike")
+              %i.icon.ion-ios7-checkmark.balanced(ng-if="i.strike")
+              %b.assertive {{i.qty}}
+              %b {{i.type}}
+              %span.italic {{!i.type ? '' : 'of'}}
+              %b {{i.name}}
+              %p(ng-if="data.convert") {{i.smartConvert}}
+            .item.item-text-wrap(ng-if="data.items==0")
+              You don't have any items yet. Add some by clicking on the <b class="calm">plus</b> button.
+
+    / New Shopping List item
+    %script(id="shoppingListPopup.html" type="text/ng-template" )
+      .bar.bar-header.bar-positive
+        %h1.title New Item
+      .content(style="margin-top: 15px; padding-bottom: 0px; margin-bottom: 0px;")
+        .list.noPadding
+          %label.item.item-input
+            %span.input-label Item:
+            %input(type="text" placeholder="butter" ng-model="item.name" ng-required)
+          %label.item.item-input
+            %span.input-label Qty:
+            %input(type="number" placeholder="1" ng-model="item.qty")
+            %span.badge.badge-balanced(ng-if="item.type") {{item.type}}
+
+        .button-bar(ng-repeat="c in cat")
+          %a.button(ng-repeat="_c in c" ng-class="{'button-positive': item.type==_c}" ng-click="setActive(_c)")
+            %b {{_c}}
+        .button-bar
+          %a.button(ng-class="{'button-positive': item.type==''}" ng-click="setActive('')")
+            %b None
+
+    // Helper Templates
+
+    / Import shopping list
+    %script(id="importShoppingList.html" type="text/ng-template")
+      .bar.bar-header.bar-positive
+        %h1.title Import List
+      .content
+        %textarea(style="margin-top: 1.5em;" rows="5" placeholder="Paste your list here." ng-model="import.str" ng-keyup="closeIt($event)" ng-required)
+
+    / Add new instruction
+    %script(id="instructionPopup.html" type="text/ng-template")
+      .bar.bar-header.bar-positive
+        %h1.title Intruction
+      .content
+        %textarea(style="margin-top: 1.5em;" rows="5" placeholder="Instructions..." ng-model="item.string")
+
+    / New Recipe Item
+    %script(id="newRecipeItem.html" type="text/ng-template")
+      .bar.bar-header.bar-positive
+        %h1.title {{item.title}}
+      .content(style="margin-top: 1em;")
+        .list.noPadding
+          %label.item.item-input
+            %span.input-label Item:
+            %input(type="text" placeholder="..." ng-model="item.name" ng-required)
+
+    / Recipe Modal
+    %script(id="recipeModal.html" type="text/ng-template" ng-controller="recipeModalCtrl")
+      .modal
+        %ion-header-bar.bar.bar-positive
+          %button.button.button-clear.icon.ion-arrow-left-c(ng-click="modal.hide()")
+          %h1.title 
+            %b {{modal.current.name}}
+
+          %button.button.button-clear.icon.ion-close(ng-click="modal.hide()")
+        %ion-content
+          .card
+            .item.item-divider.positive.item-icon-right
+              Ingredients
+              %a.icon(ng-class="{'balanced': modal.current.smartConvert}" style="margin-right: 2em;" ng-click="modal.smartToggle()")
+                %i.icon.ion-code-working
+              %a.icon(style="margin-right: 1em;" ng-click="modal.import()")
+                %i.icon.ion-ios7-download-outline
+              %a.icon(ng-click="modal.add('ingredient')")
+                %i.icon.ion-plus
+            .item.item-text-wrap(ng-repeat="i in modal.current.ingredients")
+              %b.assertive {{i.qty}}
+              %b {{i.type}}
+              %span.italic {{!i.type ? '' : 'of'}}
+              %b {{i.name}}
+              %p(ng-if="modal.current.smartConvert") {{i.smartConvert}}
+            .item.item-text-wrap Add some ingredients to your recipe.
+          .card
+            .item.item-divider.balanced.item-icon-right
+              Instructions
+              %a.icon(ng-click="modal.add('instruction')")
+                %i.icon.ion-plus
+            .item.item-text-wrap How to prepare this delicious recipe.
+
+        .bar.bar-footer.bar-positive
