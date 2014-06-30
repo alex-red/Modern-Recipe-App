@@ -21,16 +21,18 @@
       </ion-view>
     </ion-nav-view>
     <!-- Footer bar -->
-    <div class='tabs tabs-icon-top tabs-positive'>
-      <a class='tab-item' href='#'>
-        <i class='icon ion-home'></i>
-        Home
-      </a>
-      <a class='tab-item'>
-        <i class='icon ion-gear-a'></i>
-        Settings
-      </a>
-    </div>
+    <ion-footer-bar class='bar-positive'>
+      <div class='tabs tabs-icon-top tabs-positive'>
+        <a class='tab-item' href='#'>
+          <i class='icon ion-home'></i>
+          Home
+        </a>
+        <a class='tab-item'>
+          <i class='icon ion-gear-a'></i>
+          Settings
+        </a>
+      </div>
+    </ion-footer-bar>
     <!-- Index -->
     <script id='home.html' type='text/ng-template'>
       <ion-view hide-back-button='true' title='Modern Chef'>
@@ -266,14 +268,15 @@
                 <i class='icon ion-plus'></i>
               </a>
             </div>
-            <div class='item item-text-wrap' ng-repeat='i in modal.current.ingredients'>
+            <div class='item item-text-wrap' ng-class="{'doneThis': i.strike, 'item-icon-left': i.strike}" ng-click='modal.handleClick(i)' ng-repeat='i in modal.current.ingredients'>
+              <i class='icon ion-ios7-checkmark balanced' ng-if='i.strike'></i>
               <b class='assertive'>{{i.qty}}</b>
               <b>{{i.type}}</b>
               <span class='italic'>{{!i.type ? '' : 'of'}}</span>
               <b>{{i.name}}</b>
               <p ng-if='modal.current.smartConvert'>{{i.smartConvert}}</p>
             </div>
-            <div class='item item-text-wrap'>Add some ingredients to your recipe.</div>
+            <div class='item item-text-wrap' ng-if='!modal.current.ingredients'>Add some ingredients to your recipe.</div>
           </div>
           <div class='card'>
             <div class='item item-divider balanced item-icon-right'>
@@ -285,7 +288,7 @@
             <div class='item item-text-wrap'>How to prepare this delicious recipe.</div>
           </div>
         </ion-content>
-        <div class='bar bar-footer bar-positive'></div>
+        <ion-footer-bar class='bar-positive'></ion-footer-bar>
       </div>
     </script>
   </body>

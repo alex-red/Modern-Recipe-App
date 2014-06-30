@@ -326,6 +326,9 @@ recipesCtrl = ($scope, $state, db, $ionicPopup, $ionicModal) ->
       $scope.current.smartConvert = !$scope.current.smartConvert
       $scope.modal.current = $scope.current
 
+    $scope.modal.handleClick = ->
+      it.strike = !it.strike
+
     $scope.modal.show!
 
 

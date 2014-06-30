@@ -23,13 +23,14 @@
           Hello World!
 
     / Footer bar
-    .tabs.tabs-icon-top.tabs-positive
-      %a.tab-item(href="#")
-        %i.icon.ion-home
-        Home
-      %a.tab-item
-        %i.icon.ion-gear-a
-        Settings
+    %ion-footer-bar.bar-positive
+      .tabs.tabs-icon-top.tabs-positive
+        %a.tab-item(href="#")
+          %i.icon.ion-home
+          Home
+        %a.tab-item
+          %i.icon.ion-gear-a
+          Settings
 
     / Index
     %script(id="home.html" type="text/ng-template")
@@ -210,13 +211,14 @@
                 %i.icon.ion-ios7-download-outline
               %a.icon(ng-click="modal.add('ingredient')")
                 %i.icon.ion-plus
-            .item.item-text-wrap(ng-repeat="i in modal.current.ingredients")
+            .item.item-text-wrap(ng-repeat="i in modal.current.ingredients" ng-click="modal.handleClick(i)" ng-class="{'doneThis': i.strike, 'item-icon-left': i.strike}")
+              %i.icon.ion-ios7-checkmark.balanced(ng-if="i.strike")
               %b.assertive {{i.qty}}
               %b {{i.type}}
               %span.italic {{!i.type ? '' : 'of'}}
               %b {{i.name}}
               %p(ng-if="modal.current.smartConvert") {{i.smartConvert}}
-            .item.item-text-wrap Add some ingredients to your recipe.
+            .item.item-text-wrap(ng-if="!modal.current.ingredients") Add some ingredients to your recipe.
           .card
             .item.item-divider.balanced.item-icon-right
               Instructions
@@ -224,4 +226,4 @@
                 %i.icon.ion-plus
             .item.item-text-wrap How to prepare this delicious recipe.
 
-        .bar.bar-footer.bar-positive
+        %ion-footer-bar.bar-positive

@@ -405,6 +405,9 @@ recipesCtrl = function($scope, $state, db, $ionicPopup, $ionicModal){
       $scope.current.smartConvert = !$scope.current.smartConvert;
       return $scope.modal.current = $scope.current;
     };
+    $scope.modal.handleClick = function(it){
+      return it.strike = !it.strike;
+    };
     return $scope.modal.show();
   };
   return $scope.setActive = function(it){
